@@ -1,0 +1,28 @@
+		# Static awstats files: HTML files stored in DOCUMENT_ROOT/awstats/
+		location /classes {
+			alias /usr/local/apps/awstats/wwwroot/classes;
+		}
+
+		location /css {
+			alias /usr/local/apps/awstats/wwwroot/css;
+		}
+
+		location /icon {
+			alias /usr/local/apps/awstats/wwwroot/icon;
+		}
+
+		location /js {
+			alias /usr/local/apps/awstats/wwwroot/js;
+		}
+
+
+		# Dynamic stats.
+		location ~ ^/cgi-bin/(awredir|awstats)\.pl {
+			#root /usr/local/apps/awstats;
+			gzip off;
+			fastcgi_pass	unix:/usr/local/emps/var/fpm9178.sock;
+			fastcgi_param SCRIPT_FILENAME /usr/local/apps/awstats/wwwroot/cgi-bin/fcgi.php;
+			fastcgi_param X_SCRIPT_FILENAME /usr/local/apps/awstats/wwwroot$fastcgi_script_name;
+			fastcgi_param X_SCRIPT_NAME $fastcgi_script_name;
+			include fastcgi_params;
+		}

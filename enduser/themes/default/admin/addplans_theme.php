@@ -1,0 +1,496 @@
+<?php
+
+//////////////////////////////////////////////////////////////
+//===========================================================
+// email_theme.php
+//===========================================================
+// SOFTACULOUS 
+// Version : 1.1
+// Inspired by the DESIRE to be the BEST OF ALL
+// ----------------------------------------------------------
+// Started by: Alons
+// Date:       10th Jan 2009
+// Time:       21:00 hrs
+// Site:       http://www.softaculous.com/ (SOFTACULOUS)
+// ----------------------------------------------------------
+// Please Read the Terms of use at http://www.softaculous.com
+// ----------------------------------------------------------
+//===========================================================
+// (c)Softaculous Inc.
+//===========================================================
+//////////////////////////////////////////////////////////////
+
+if(!defined('SOFTACULOUS')){
+
+	die('Hacking Attempt');
+
+}
+
+function addplans_theme(){
+
+global $theme, $globals, $user, $l, $langs, $error, $reseller, $iscripts, $plans, $done, $_cpplan, $_users, $allcatwise, $_resellers, $loaded_scripts, $softpanel;
+
+$all_sets = load_wp_sets();
+
+softheader($l['<title>']);
+
+echo '<br /><form accept-charset="'.$globals['charset'].'" name="addplan" method="post" action="">
+<div class="container-fluid">
+<div class="sai_heading text-center">
+	<div class="row">
+		<span style="display: inline-block; position:relative; top:5px;">
+			<i class="fa sai-projectman fa-1x"></i>
+		</span>
+		<span>
+			'.$l['title'].'
+		</span>
+	</div>
+</div><br />
+<div class="sai_hr"></div><br />
+'.(empty($globals['lictype']) ? '<div class="alert alert-warning text-center">'.$l['feature_not_available'].'</div>' : '');
+
+echo '<script language="javascript" type="text/javascript"><!-- // --><![CDATA[
+ids = new Array("'.implode('", "', array_keys($_users)).'");
+
+function checkalluser(checker){
+	for(x in ids){
+		$_("users_"+ids[x]).checked = checker.checked;
+		changebg(ids[x], "users_");
+	}
+};
+
+ids1 = new Array('.implode(', ', array_keys($iscripts)).');
+function checkallsoftware(checker){	
+	for(x in ids1){
+		$_("scripts_"+ids1[x]).checked = checker.checked;
+		
+		//change td background color
+		changebg(ids1[x],"scripts_");
+	}	
+};
+
+ids2 = new Array("'.implode('", "', array_keys($_resellers)).'");
+function checkallreseller(checker){	
+	for(x in ids2){
+		$_("resellers_"+ids2[x]).checked = checker.checked;
+		changebg(ids2[x], "resellers_");
+	}
+};
+
+ids3 = new Array("'.implode('", "', array_keys($_cpplan)).'");
+function checkallcpplan(checker){	
+	for(x in ids3){
+		$_("cpplan_"+ids3[x]).checked = checker.checked;
+		changebg(ids3[x], "cpplan_");
+	}	
+};
+
+//since ids4 is already in use
+ids5 = new Array("'.implode('", "', array_keys($all_sets)).'")
+function checkallsets(checker){	
+	for(x in ids5){
+		$_("sets_"+ids5[x]).checked = checker.checked;
+		changebg(ids5[x], "sets_");
+	}	
+};
+
+function selectchkbox(id,type){
+	if($_(type+id).checked){
+		$_(type+id).checked = false;
+	}else{
+		$_(type+id).checked = true;
+	}
+	
+	//change td background color
+	changebg(id,type);
+}
+
+function changebg(id,type){
+	try{
+		if($_(type+id).checked){
+			
+			$("#td_"+id).addClass("script_selected");
+			
+		}else{
+			
+			$("#td_"+id).removeClass("script_selected");
+		}
+	}catch(e){}
+};
+
+function checkall(){
+	
+	// for users
+	for(x in ids){	
+		changebg(ids[x],"users_");
+	}
+	
+	// for scripts
+	for(x in ids1){	
+		changebg(ids1[x],"scripts_");
+	}
+	
+	// for resellers_
+	for(x in ids2){	
+		changebg(ids2[x],"resellers_");
+	}
+	// for cpplan_
+	for(x in ids3){	
+		changebg(ids3[x],"cpplan_");
+	}
+
+	//for sets
+	for(x in ids5){
+		changebg(ids5[x], "sets_");
+	}	
+};
+
+function list_set_items(setname){
+
+	var sets_list = '.json_encode($all_sets).';
+	var set_plugins;
+	var set_themes;
+	var plugins_data;
+	var themes_data;
+	
+	$(".modal-title").text(setname.replace("_admin", ""));
+	
+	$("#list_plugins_themes").empty();
+	
+	var set_plugins = new Array();
+	var set_themes = new Array();
+	
+	if(sets_list[setname]["plugins"]){
+		set_plugins = sets_list[setname]["plugins"];
+	}
+	
+	if(sets_list[setname]["themes"]){
+		set_themes = sets_list[setname]["themes"];
+	}
+	
+	if(sets_list[setname]["custom_plugins"]){
+		for(var x in sets_list[setname]["custom_plugins"]){
+			set_plugins[sets_list[setname]["custom_plugins"][x].slug] = sets_list[setname]["custom_plugins"][x].name;
+		}
+	}
+	
+	if(sets_list[setname]["custom_themes"]){
+		for(var x in sets_list[setname]["custom_themes"]){
+			set_themes[sets_list[setname]["custom_themes"][x].slug] = sets_list[setname]["custom_themes"][x].name;
+		}
+	}
+	
+	if((set_plugins === undefined || (set_plugins.length <= 0 && Object.keys(set_plugins) <= 0)) && (set_themes === undefined || (set_themes.length <= 0 && Object.keys(set_themes) <= 0))){
+		$("#list_plugins_themes").append("'.$l['empty_set'].'");
+	}
+	
+	//Plugins
+	if(set_plugins !== undefined){
+		plugins_data = "<h4>'.$l['plugins'].'</h4><ul class=\"softlist\">";
+		for(var pl in set_plugins){
+			plugins_data += "<li>"+set_plugins[pl]+"</li>";
+		}
+		$("#list_plugins_themes").append("</ul>" + plugins_data);
+	}
+	
+	//Themes
+	if(set_themes !== undefined){
+		themes_data = "<br /><h4>'.$l['themes'].'</h4><ul class=\"softlist\">";
+		for(var th in set_themes){
+			themes_data += "<li>"+set_themes[th]+"</li>";
+		}
+		$("#list_plugins_themes").append("</ul>" + themes_data);
+	}
+}
+
+addonload("checkall();");
+// ]]></script>';
+
+/*  $reseller $user*/
+echo '<link href="'.$globals['mirror_images'].'sprites/20.css" rel="stylesheet" type="text/css" />';
+
+error_handle($error);
+
+if(!empty($done)){
+	echo '<div class="conatiner">
+			<div class="alert alert-warning text-center"><img src="'.$theme['images'].'success.gif" /> &nbsp; '.$l['done'].'</div>
+		</div>';
+}
+
+echo '<div class="sai_form_head">
+		'.$l['planhead'].'
+	</div>
+	<div class="sai_form">
+		<div class="row">
+			<div class="col-sm-5">
+				<label for="planname" class="sai_head">'.$l['planname'].'</label><br />
+				<span class="sai_exp2">'.$l['exp_plan'].'</span>
+			</div>
+			<div class="col-sm-5">
+				'.(defined('SOFTRESELLER') ? 'reseller_'.SOFTRESELLER.'_' : '').'
+				<input type="text" class="form-control" name="planname" id="planname" size="40" value="'.POSTval('planname', '').'">
+			</div>
+		</div><br />';
+		
+		if(!defined('SOFTRESELLER')){
+			echo '<div class="row">
+					<div class="col-sm-12 sai_exp2">'.$l['default_plan_note'].'</div>
+				</div><br />';
+		}
+		
+		// Show the disable auto upgrade option only if we have userdata_cli() function in softpanel as we will need it to load it
+		if(method_exists($softpanel, 'userdata_cli')){
+			echo '<div class="row">
+				<div class="col-sm-5">
+					<label for="disable_autoupgrade" class="sai_head">'.$l['disable_autoupgrade'].'</label><br />
+					<span class="sai_exp2">'.$l['exp_disable_autoupgrade'].'</span>
+				</div>
+				<div class="col-sm-5">
+					<input type="checkbox" name="disable_autoupgrade" id="disable_autoupgrade" '.POSTchecked('disable_autoupgrade', '').'/>
+				</div>
+			</div><br />';
+		}
+		
+echo'<br /></div><br />';
+
+	// Are there control panel plans
+if(!empty($_cpplan)){
+	echo '<div class="sai_form_head">
+			'.$l['cpanelplan'].'
+		</div>
+		<div class="sai_form">
+			<span>'.$l['cpplanselect'].'</span>
+			<div class="row">
+				<div class="col-sm-6">
+					<span class="sai_head">'.$l['select_all'].'<input type="checkbox" onclick="checkallcpplan(this);" /></span>
+				</div>
+				<div class="col-sm-6">
+					<span class="sai_head">'.$l['overwrite_settings'].'&nbsp;<input type="checkbox" name="cpplansetting"/></span>
+				</div>
+			</div><br />
+			<div class="row">';
+			
+	foreach($_cpplan as $k => $v){
+		echo '<div class="col-sm-3 script_choose" id="td_'.$k.'">
+				<div class="row">
+					<input type="checkbox" id="cpplan_'.$k.'" name="cpplan_'.$k.'" '.POSTchecked('cpplan_'.$k, '').' onclick="changebg(\''.$k.'\',\'cpplan_\');" />
+					<a href="javascript:void(0)" style="text-decoration: none; " onclick="selectchkbox(\''.$k.'\',\'cpplan_\');"><font class="sai_bboxtxt">'.$v['original_key'].'</font></a>
+				</div>
+			</div>';
+	}
+	
+	echo '</div><br />
+	</div><br />';
+}
+
+if(!defined('SOFTRESELLER') && method_exists('softpanel', 'listresellers')){
+	echo '<div class="sai_form_head">'.$l['resellerselect'].'</div>
+		<div class="sai_form">
+			<span>'.$l['exp_resellerselect'].'</span><br />
+			<div class="row">
+				<div class="col-sm-6">
+					<span class="sai_head">'.$l['select_all'].'<input type="checkbox" onclick="checkallreseller(this);" /></span>
+				</div>
+				<div class="col-sm-6">
+					<span class="sai_head">'.$l['overwrite_settings'].'&nbsp;<input type="checkbox" name="resellersetting"/></span>
+				</div>
+			</div><br />
+			<div class="row">';
+		
+	foreach($_resellers as $k => $v){
+
+		echo '<div class="col-sm-3 script_choose" id="td_'.$k.'">
+				<div class="row">
+					<input type="checkbox" id="resellers_'.$k.'" name="resellers_'.$k.'" '.POSTchecked('resellers_'.$k, '').' onclick="changebg(\''.$k.'\',\'resellers_\');"/>
+					<img src="'.$theme['images'].'reseller15.png" style="margin-bottom:4px;">
+					<a href="javascript:void(0)" style="text-decoration: none; " onclick="selectchkbox(\''.$k.'\',\'resellers_\');"><font class="sai_bboxtxt">'.$v['original_key'].'</font></a>
+				</div>
+			</div>';
+
+	}
+		
+	echo'</div><br />
+	</div><br />';
+}
+
+echo '<div class="sai_form_head">'.$l['userselect'].'</div>
+	<div class="sai_form">
+		<span>'.$l['exp_userselect'].'</span><br />
+		<div class="row">
+			<div class="col-sm-6">
+				<span class="sai_head">'.$l['select_all'].'<input type="checkbox" onclick="checkalluser(this);" /></span>
+			</div>
+			<div class="col-sm-6">
+				<span class="sai_head">'.$l['overwrite_settings'].'&nbsp;<input type="checkbox" name="usersetting" /></span>
+			</div>
+		</div><br />
+		<div class="row">';
+		
+	foreach($_users as $k=>$v){
+		
+		echo '<div class="col-sm-3 script_choose" id="td_'.$k.'">
+			<div class="row">
+				<input type="checkbox" id="users_'.$k.'" name="users_'.$k.'" '.POSTchecked('users_'.$k, '').' onclick="changebg(\''.$k.'\',\'users_\');" />
+				<img src="'.$theme['images'].'user15.png" style="margin-bottom:4px;">
+				<a href="javascript:void(0)" style="text-decoration: none; " onclick="selectchkbox(\''.$k.'\',\'users_\');"><font class="sai_bboxtxt">'.$v['original_key'].'</font></a>
+			</div>
+		</div>';	
+	}
+	
+echo '</div>
+	</div><br />
+	
+	<div class="sai_form_head">'.$l['limit_features'].'</div>
+	<div class="sai_form">
+		<div class="row">
+			<div class="col-sm-4">
+				<label for="max_ins_script" class="sai_head">'.$l['max_ins_script'].'</label><br />
+				<span class="sai_exp2">'.$l['exp_max_ins_script'].' '.$l['default_note'].'</span><br /><br />
+			</div>
+			<div class="col-sm-2">
+				<input type="text" class="form-control" name="max_ins_script" id="max_ins_script" size="40" value="'.POSTval('max_ins_script', '').'">
+				<br />
+			</div>
+			<div class="col-sm-4">
+				<label for="max_backup_script" class="sai_head">'.$l['max_backup_script'].'</label><br />
+				<span class="sai_exp2">'.$l['exp_max_backup_script'].' '.$l['default_note'].'</span><br /><br />
+			</div>	
+			<div class="col-sm-2">
+				<input type="text" class="form-control" name="max_backup_script" id="max_backup_script" size="40" value="'.POSTval('max_backup_script', '').'">
+				<br />
+			</div>
+		</div>	
+				
+		<div class="row">
+			<div class="col-sm-4">
+				<label for="max_clone_script" class="sai_head">'.$l['max_clone_script'].'</label><br />
+				<span class="sai_exp2">'.$l['exp_max_clone_script'].' '.$l['default_note'].'</span><br /><br />
+			</div>	
+			<div class="col-sm-2">
+				<input type="text" class="form-control" name="max_clone_script" id="max_clone_script" size="40" value="'.POSTval('max_clone_script', '').'">
+				<br />
+			</div>
+				
+			<div class="col-sm-4">
+				<label for="max_staging_script" class="sai_head">'.$l['max_staging_script'].'</label><br />
+				<span class="sai_exp2">'.$l['exp_max_staging_script'].' '.$l['default_note'].'</span>
+				<br /><br />	
+			</div>
+			<div class="col-sm-2">
+				<input type="text" class="form-control" name="max_staging_script" id="max_staging_script" size="40" value="'.POSTval('max_staging_script', '').'">
+			</div>
+		</div>				
+	</div><br />
+	<div class="sai_form_head">'.$l['setselect'].'</div>
+	<div class="sai_form">
+		<span>'.$l['exp_setselect'].'</span><br />
+		<div class="row">
+			<div class="col-sm-6">
+				<span class="sai_head">'.$l['select_all'].'<input type="checkbox" onclick="checkallsets(this);"/></span>
+			</div>
+		</div><br />
+		<div class="row">';
+		
+		foreach($all_sets as $sk=> $av){
+			if(!empty($av['plugins']) || !empty($av['custom_plugins']) || !empty($av['themes']) || !empty($av['custom_themes'])){
+
+			echo '<div class="col-sm-3 script_choose" id="td_'.$sk.'">
+				<div class="row">
+					<input type="checkbox" name="sets_name[]" id="sets_'.$sk.'" '.POSTchecked_Array('sets_name', $sk, (!empty($av['default_value']) ? true : false)).' value="'.$sk.'" onclick="changebg(\''.$sk.'_admin\', \'sets_\');"/>&nbsp;&nbsp;
+					<a href="javascript:void(0)" style="text-decoration: none; " onclick="selectchkbox(\''.$sk.'\', \'sets_\');"><font class="sai_bboxtxt">'.str_replace('_admin', '', $sk).'</font></a>
+					<span class="someclass" title="'.$l['view_items'].'" style="cursor:pointer;" data-toggle="modal" data-target="#list_set_items_modal" onclick="list_set_items(\''.$sk.'\');"><i class="fa sai-info" style="color:#676a6c; font-size:1.15em; vertical-align:middle;"></i></span>&nbsp;&nbsp;
+				</div>
+			  </div>';
+			}
+		}
+		
+	
+		echo '<div class="modal fade" id="list_set_items_modal" role="dialog">
+				<div class="modal-dialog modal-sm">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title"></h4>
+						</div>
+						<div class="modal-body" id="list_plugins_themes">
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">'.$l['ok'].'</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div><br />
+
+	<div class="sai_form_head">'.$l['scriptselect'].'</div>
+	<div class="sai_form">
+		<span>'.$l['exp_scriptselect'].'</span><br />
+		<span class="sai_head">'.$l['select_all'].'<input type="checkbox" onclick="checkallsoftware(this);" /></span>
+		<table width="100%">
+		<tr><td colspan="12">
+			<table width="100%">';
+			//r_print($allcatwise);
+			//Showing All scripts Category wise
+			foreach($allcatwise as $ak => $av){
+				
+				if(empty($allcatwise[$ak])) continue;
+				
+				echo '<tr><td colspan="4"><span class="text-center"><h4>'.strtoupper($ak).' Apps</h4></span></td></tr>';
+				
+				foreach($av as $kk => $vv){
+					
+					if(empty($av[$kk])) continue;
+
+					echo '<tr><td colspan="12">
+							<div class="sai_bboxtxt script_cat" style="font-size:14px;">'.$l['cat_'.$ak.'_'.$kk].'</div>
+							<div class="sai_hr"></div>
+						</td></tr>';
+					$i = 0;
+					foreach($vv as $k => $v){
+					
+						if(is_int($i/4)){
+							echo '<tr>';
+						}
+			
+						echo '<td width="20%" class="script_choose" id="td_'.$k.'">
+							<table width="95%" style="margin-top:10px;">
+							<tr>
+							<td width="2%">
+								<input type="checkbox" id="scripts_'.$k.'" name="scripts_'.$k.'" '.POSTchecked('scripts_'.$k, '').'  onclick="changebg(\''.$k.'\',\'scripts_\');"/>
+							</td>
+							<td width="5%">
+								<div class="sp20_'.$v['softname'].'"></div>
+							</td>
+							<td>
+								<a href="javascript:void(0)" style="text-decoration: none; " onclick="selectchkbox(\''.$k.'\',\'scripts_\');" ><font class="sai_bboxtxt">'.$v['name'].'</font></a>
+							</td>
+							</tr>
+							</table>
+						</td>';
+						$i++;		
+													
+						if(is_int($i/4)){	
+							echo '</tr>';					
+						}																								
+					}
+				}
+			}			
+			
+		echo '</table>
+		</td></tr></table>';
+	
+echo '<p align="center">
+'.csrf_display().'
+<input type="submit" name="saveplan" value="'.$l['saveplan'].'" class="flat-butt">
+</p>
+'.(empty($globals['lictype']) ? '<div class="sai_notebox">'.$l['feature_not_available'].'</div>' : '').'<br />
+</div>	
+</div>
+</form><br />';
+
+softfooter();
+
+}
+
+?>

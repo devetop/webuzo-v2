@@ -1,0 +1,26 @@
+$TTL 14400
+@      86400	IN      SOA     [NS1]. [PRIMARY_DOMAIN]. (
+		[DATE]	; serial, todays date+todays
+		86400		; refresh, seconds
+		7200		; retry, seconds
+		3600000		; expire, seconds
+		86400 )		; minimum, seconds
+
+[DOMAIN]. IN NS [NS1].
+[DOMAIN]. IN NS [NS2].
+
+;Zone Contents
+[DOMAIN]. IN A [IP]
+
+[NSR1] IN A [IP]
+
+[NSR2] IN A [IP]
+
+localhost.[DOMAIN]. IN A 127.0.0.1
+
+[DOMAIN]. IN MX 0 [DOMAIN].
+
+www IN CNAME [DOMAIN].
+
+ftp IN A [IP]
+
